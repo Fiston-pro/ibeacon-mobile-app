@@ -6,7 +6,7 @@
 
 #define DEVICE_NAME            "ESP32"
 #define SERVICE_UUID           "7A0247E7-8E88-409B-A959-AB5092DDB03E"
-#define BEACON_UUID            "2D7A9F0C-E0E8-4CC9-A71B-A21DB2D034A1"
+#define BEACON_UUID            "2D7A9F0C-E0E8-4CC9-A71B-A21DB2D034A2"
 #define BEACON_UUID_REV        "A134D0B2-1DA2-1BA7-C94C-E8E00C9F7A2D"
 #define CHARACTERISTIC_UUID    "82258BAA-DF72-47E8-99BC-B73D7ECD08A5"
 
@@ -35,16 +35,16 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 class MyCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string rxValue = pCharacteristic->getValue();
+      String rxValue = pCharacteristic->getValue();
 
       if (rxValue.length() > 0) {
-        Serial.println("*********");
+        Serial.println("***");
         Serial.print("Received Value: ");
         for (int i = 0; i < rxValue.length(); i++) {
           Serial.print(rxValue[i]);
         }
         Serial.println();
-        Serial.println("*********");
+        Serial.println("***");
 
       }
     }
@@ -115,12 +115,10 @@ void setup() {
 
 void loop() {
   if (deviceConnected) {
-    Serial.printf("*** NOTIFY: %d ***\n", value);
+    Serial.printf("* NOTIFY: %d *\n", value);
     pCharacteristic->setValue(&value, 1);
     pCharacteristic->notify();
     value++;
   }
-      Serial.printf("ADVERTISING");
-
   delay(2000);
 }
