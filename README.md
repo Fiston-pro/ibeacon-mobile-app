@@ -32,7 +32,7 @@ This project utilizes the MIT App Inventor platform to create a mobile applicati
 ## Extension Dependency
 
 Our project depends on a specific extension for proper functionality. Please download and install the following extension:
-- [Extension Name](link-to-extension)
+- [Extension Name](https://drive.google.com/file/d/1AOTuc9uNSfs_GRZ9y9UW73SCkKqPHvSY/view?usp=sharing)
 
 ## Contributing
 
