@@ -29,6 +29,9 @@ This project utilizes the MIT App Inventor platform to create a mobile applicati
 5. Upon launching the app, ensure to grant location permissions manually to enable iBeacon detection, Unless your android version is below less than 10
 6. Once permissions are granted, the app will start detecting iBeacons in the vicinity, providing building location notifications.
 
+## Limitations
+I test on my buddy's phone which is Android 14 and it would not work, so with android version 12 and above it, i can't promise it will work :) due to our blebeacons dependency
+
 ## Extension Dependency
 
 Our project depends on a specific extension for proper functionality. Please download and install the following extension:
@@ -48,4 +51,4 @@ Special thanks to the developers of MIT App Inventor and the contributors to the
 
 ---
 
-Thank you for exploring our iBeacon Building Locator App repository! If you have any questions or feedback, please don't hesitate to contact us. Happy building locating!
+Thank you for exploring our iBeacon Building Locator App repository! If you have any questions or feedback, please don't hesitate to contact me. Happy building stuff!
