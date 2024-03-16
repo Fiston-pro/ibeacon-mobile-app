@@ -36,6 +36,7 @@ I tested it on my buddy's phone which is Android 14 and it would not work, so wi
 
 Our project depends on a specific extension for proper functionality. Please download and install the following extension:
 - [BLEIbeacon](https://drive.google.com/file/d/1AOTuc9uNSfs_GRZ9y9UW73SCkKqPHvSY/view?usp=sharing)
+- [BluetoothLE](https://iot.appinventor.mit.edu/assets/resources/edu.mit.appinventor.ble-20230728.aix)
 
 ## Contributing
 
