@@ -30,7 +30,7 @@ This project utilizes the MIT App Inventor platform to create a mobile applicati
 6. Once permissions are granted, the app will start detecting iBeacons in the vicinity, providing building location notifications.
 
 ## Limitations
-I test on my buddy's phone which is Android 14 and it would not work, so with android version 12 and above it, i can't promise it will work :) due to our blebeacons dependency
+I tested it on my buddy's phone which is Android 14 and it would not work, so with android version 12 and above it, i can't promise it will work :) due to our blebeacons dependency
 
 ## Extension Dependency
 
