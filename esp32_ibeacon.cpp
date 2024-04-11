@@ -2,14 +2,11 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
-#include <BLEBeacon.h>
 #include <WiFi.h>
 #include <WebServer.h>
 
 #define DEVICE_NAME            "ESP32"
 #define SERVICE_UUID           "7A0247E7-8E88-409B-A959-AB5092DDB03E"
-#define BEACON_UUID            "2D7A9F0C-E0E8-4CC9-A71B-A21DB2D034A2"
-#define BEACON_UUID_REV        "A134D0B2-1DA2-1BA7-C94C-E8E00C9F7A2D"
 #define CHARACTERISTIC_UUID    "82258BAA-DF72-47E8-99BC-B73D7ECD08A5"
 
 BLEServer *pServer;
@@ -28,19 +25,12 @@ class MyServerCallbacks: public BLEServerCallbacks {
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
       Serial.println("deviceConnected = false");
-
-      // Restart advertising to be visible and connectable again
-      BLEAdvertising* pAdvertising;
-      pAdvertising = pServer->getAdvertising();
-      pAdvertising->start();
-      Serial.println("iBeacon advertising restarted");
     }
 };
 
 class MyCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
-      String rxValue = pCharacteristic->getValue();
-
+      std::string rxValue = pCharacteristic->getValue(); // Changed to std::string
       if (rxValue.length() > 0) {
         Serial.println("***");
         Serial.print("Received Value: ");
@@ -49,76 +39,67 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         }
         Serial.println();
         Serial.println("***");
+        
+        // Convert string to char array
+        const char* new_name = rxValue.c_str();
 
         // Here you would change the iBeacon name based on the received value
         // For simplicity, let's assume the received value is the new name
-        BLEBeacon::setBeaconName(rxValue.c_str());
+        BLEDevice::init(new_name);
       }
     }
 };
 
 void handleRoot() {
-  server.send(200, "text/html", "<input type='text' name='new_name'><button type='submit'>Submit</button>");
+  String html = "<form action='/submit' method='get'>";
+  html += "New Name: <input type='text' name='new_name' maxlength='19'><br>"; // Adjust maxlength as needed
+  html += "<button type='submit'>Submit</button></form>";
+  server.send(200, "text/html", html);
+}
+
+void handleSubmit() {
+  String newName = server.arg("new_name");
+  if (newName.length() > 0) {
+    Serial.println("***");
+    Serial.print("Received Value: ");
+    Serial.println(newName);
+    Serial.println("***");
+    
+    // Convert string to char array
+    char new_name[20]; // Adjust the length as needed
+    newName.toCharArray(new_name, sizeof(new_name));
+    
+    // Here you would change the iBeacon name based on the received value
+    // For simplicity, let's assume the received value is the new name
+    BLEDevice::init(new_name);
+  }
+  server.send(200, "text/html", "Name updated successfully");
 }
 
 void init_service() {
-  BLEAdvertising* pAdvertising;
-  pAdvertising = pServer->getAdvertising();
+  BLEAdvertising* pAdvertising = pServer->getAdvertising();
   pAdvertising->stop();
 
-  // Create the BLE Service
   BLEService *pService = pServer->createService(BLEUUID(SERVICE_UUID));
-
-  // Create a BLE Characteristic
   pCharacteristic = pService->createCharacteristic(
-                      CHARACTERISTIC_UUID,
+                      BLEUUID(CHARACTERISTIC_UUID),
                       BLECharacteristic::PROPERTY_READ   |
                       BLECharacteristic::PROPERTY_WRITE  |
                       BLECharacteristic::PROPERTY_NOTIFY
                     );
   pCharacteristic->setCallbacks(new MyCallbacks());
   pCharacteristic->addDescriptor(new BLE2902());
-
   pAdvertising->addServiceUUID(BLEUUID(SERVICE_UUID));
-
-  // Start the service
   pService->start();
-
-  pAdvertising->start();
-}
-
-void init_beacon() {
-  BLEAdvertising* pAdvertising;
-  pAdvertising = pServer->getAdvertising();
-  pAdvertising->stop();
-  // iBeacon
-  BLEBeacon myBeacon;
-  myBeacon.setManufacturerId(0x4c00);
-  myBeacon.setMajor(5);
-  myBeacon.setMinor(88);
-  myBeacon.setSignalPower(0xc5);
-  myBeacon.setProximityUUID(BLEUUID(BEACON_UUID_REV));
-
-  BLEAdvertisementData advertisementData;
-  advertisementData.setFlags(0x1A);
-  advertisementData.setManufacturerData(myBeacon.getData());
-  pAdvertising->setAdvertisementData(advertisementData);
-
   pAdvertising->start();
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println("Initializing...");
-  Serial.flush();
-
   BLEDevice::init(DEVICE_NAME);
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
-
   init_service();
-  init_beacon();
 
   // Initialize WiFi
   WiFi.begin("SSID", "PASSWORD");
@@ -127,22 +108,22 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("WiFi connected");
+  Serial.println("Go to: http://");
+  Serial.println(WiFi.localIP());
 
   // Start the web server
   server.on("/", handleRoot);
+  server.on("/submit", HTTP_GET, handleSubmit); // Handle form submission
   server.begin();
-
-  Serial.println("iBeacon + service defined and advertising!");
 }
 
 void loop() {
   server.handleClient(); // Handle web server requests
 
   if (deviceConnected) {
-    Serial.printf("* NOTIFY: %d *\n", value);
     pCharacteristic->setValue(&value, 1);
     pCharacteristic->notify();
     value++;
   }
   delay(2000);
-} 
+}
